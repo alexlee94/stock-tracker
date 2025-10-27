@@ -2,6 +2,7 @@ package com.alexlee.stock_tracker.service;
 
 import com.alexlee.stock_tracker.client.StockClient;
 import com.alexlee.stock_tracker.dto.AlphaVantageResponse;
+import com.alexlee.stock_tracker.dto.StockOverviewResponse;
 import com.alexlee.stock_tracker.dto.StockResponse;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +24,10 @@ public class StockService {
                 .price(Double.parseDouble(response.globalQuote().price()))
                 .lastUpdated(response.globalQuote().lastTradingDay())
                 .build();
+    }
+
+    public StockOverviewResponse getStockOverviewForSymbol(final String symbol) {
+        return stockClient.getStockOverview(symbol);
+
     }
 }
