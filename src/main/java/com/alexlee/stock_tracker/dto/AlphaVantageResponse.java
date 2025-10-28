@@ -10,5 +10,6 @@ public record AlphaVantageResponse(
             @JsonProperty("01. symbol") String symbol,
             @JsonProperty("05. price") String price,
             @JsonProperty("07. latest trading day") String lastTradingDay
-    ) {}
+    ) {
+    }
 }
