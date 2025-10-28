@@ -2,6 +2,10 @@ package com.alexlee.stock_tracker.service;
 
 import com.alexlee.stock_tracker.client.StockClient;
 import com.alexlee.stock_tracker.dto.*;
+import com.alexlee.stock_tracker.entity.FavoriteStock;
+import com.alexlee.stock_tracker.exception.FavoriteAlreadyExistsException;
+import com.alexlee.stock_tracker.repository.FavoriteStockRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,9 +16,12 @@ import java.util.stream.Collectors;
 public class StockService {
 
     private StockClient stockClient;
+    private FavoriteStockRepository favoritesRepository;
 
-    public StockService(final StockClient stockClient) {
+    public StockService(final StockClient stockClient,
+                        final FavoriteStockRepository favoritesRepository) {
         this.stockClient = stockClient;
+        this.favoritesRepository = favoritesRepository;
     }
 
     public StockResponse getStockForSymbol(final String stockSymbol) {
@@ -51,6 +58,19 @@ public class StockService {
 
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public FavoriteStock addFavorite(final String symbol) {
+        if (favoritesRepository.existsBySymbol(symbol)) {
+            throw new FavoriteAlreadyExistsException(symbol);
+        }
+
+        FavoriteStock favorite = FavoriteStock.builder()
+                .symbol(symbol)
+                .build();
+
+        return favoritesRepository.save(favorite);
     }
 
 }
