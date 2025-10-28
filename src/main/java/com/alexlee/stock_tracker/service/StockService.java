@@ -6,6 +6,7 @@ import com.alexlee.stock_tracker.entity.FavoriteStock;
 import com.alexlee.stock_tracker.exception.FavoriteAlreadyExistsException;
 import com.alexlee.stock_tracker.repository.FavoriteStockRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class StockService {
         this.favoritesRepository = favoritesRepository;
     }
 
+    @Cacheable(value = "stocks", key = "#stockSymbol")
     public StockResponse getStockForSymbol(final String stockSymbol) {
         final AlphaVantageResponse response = stockClient.getStockQuote(stockSymbol);
 
@@ -73,4 +75,11 @@ public class StockService {
         return favoritesRepository.save(favorite);
     }
 
+    public List<StockResponse> getFavoritesWithLivePrices() {
+        List<FavoriteStock> favorites = favoritesRepository.findAll();
+
+        return favorites.stream()
+                .map(fav -> getStockForSymbol(fav.getSymbol()))
+                .collect(Collectors.toList());
+    }
 }
